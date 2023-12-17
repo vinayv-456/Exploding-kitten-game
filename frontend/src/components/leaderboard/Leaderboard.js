@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 function Leaderboard() {
   const users = useSelector((state) => state.leaderBoard?.userScores);
-  const user_name = useSelector((state) => state.gameState?.user_name);
+  const userName = useSelector((state) => state.gameState?.userName);
   const score = useSelector((state) => state.gameState?.score);
 
   return (
@@ -21,7 +21,7 @@ function Leaderboard() {
               }}
             >
               <div className="equi">{user}: </div>
-              {user === user_name ? (
+              {user === userName ? (
                 <div className="equi">{score} </div>
               ) : (
                 <div className="equi">{users[user]} </div>

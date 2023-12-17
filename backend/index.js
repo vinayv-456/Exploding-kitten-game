@@ -29,16 +29,16 @@ app.get("/leader-board", async (req, res) => {
 
 app.get("/game", async (req, res) => {
   try {
-    const { user_name } = req.query;
+    const { userName } = req.query;
 
     // check if the memeber already exists
     let isMember = await redis.exists(user_name);
 
     // intitate the game for the new user
     if (!isMember) {
-      createUser = await redis.lpush("users", user_name);
+      createUser = await redis.lpush("users", userName);
       await redis.hmset(
-        user_name,
+        userName,
         "score",
         0,
         "gamecards",
@@ -50,7 +50,7 @@ app.get("/game", async (req, res) => {
       );
     }
 
-    let game = await redis.hgetall(user_name);
+    let game = await redis.hgetall(userName);
     res.status(200).send(game);
   } catch (e) {
     console.log(e);
@@ -60,9 +60,9 @@ app.get("/game", async (req, res) => {
 
 app.post("/game", async (req, res) => {
   try {
-    const { gameCards, hasDefuseCard, activeCard, user_name, score } = req.body;
+    const { gameCards, hasDefuseCard, activeCard, userName, score } = req.body;
     insertGame = await redis.hmset(
-      user_name,
+      userName,
       "gamecards",
       gameCards,
       "hasDefuseCard",
@@ -81,10 +81,9 @@ app.post("/game", async (req, res) => {
 
 app.put("/game", async (req, res) => {
   try {
-    const { user_name, gameCards, score, hasDefusedCard, activeCard } =
-      req.body;
+    const { userName, gameCards, score, hasDefusedCard, activeCard } = req.body;
     insertGame = await redis.hmset(
-      user_name,
+      userName,
       "gamecards",
       gameCards,
       "hasDefuseCard",
@@ -103,10 +102,10 @@ app.put("/game", async (req, res) => {
 
 app.delete("/game", async (req, res) => {
   try {
-    const { user_name } = req.body;
+    const { userName } = req.body;
     const emptyArray = [];
     insertGame = await redis.hmset(
-      user_name,
+      userName,
       "gamecards",
       emptyArray,
       "hasDefuseCard",
