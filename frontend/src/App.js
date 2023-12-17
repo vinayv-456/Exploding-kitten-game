@@ -3,21 +3,13 @@ import { useSelector } from "react-redux";
 
 import { useEffect } from "react";
 import Leaderboard from "./components/leaderboard/Leaderboard";
-import Cards from "./components/game/Game";
 import { useActions } from "./hooks/useActions";
-import { generateRandomCards } from "./utilis/utilis";
 import Game from "./components/game/Game";
 
 function App() {
   const userName = useSelector((state) => state.gameState?.userName);
   const cards = useSelector((state) => state.gameState?.gameCards);
-  const isPending = useSelector((state) => state.gameState?.isPending);
-  const score = useSelector((state) => state.gameState?.score);
-  const hasDefuseCard = useSelector((state) => state.gameState?.hasDefuseCard);
-  const activeCard = useSelector((state) => state.gameState?.activeCard);
-  const users = useSelector((state) => state.leaderBoard?.userScores);
-  const { requestGameState, putGameState, getLeaderBoard, setUserName } =
-    useActions();
+  const { requestGameState, getLeaderBoard, setUserName } = useActions();
 
   useEffect(() => {
     // prompt to enter userName
@@ -33,26 +25,6 @@ function App() {
     console.log("fetching leaderboard");
     getLeaderBoard();
   }, []);
-
-  useEffect(() => {
-    const intiateNewGame = () => {
-      if (!cards || cards?.length === 0) {
-        const obj = {
-          gameCards: generateRandomCards(),
-          hasDefuseCard: false,
-          activeCard: null,
-          userName: userName,
-          score: score,
-        };
-        console.log("setting game object");
-        putGameState(obj);
-      }
-    };
-
-    if (!isPending) {
-      intiateNewGame();
-    }
-  }, [isPending]);
 
   console.log("cards", cards);
 

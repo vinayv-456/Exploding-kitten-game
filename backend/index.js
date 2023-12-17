@@ -8,6 +8,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 const Redis = require("ioredis");
+const { generateRandomCards } = require("../constants");
 const redis = new Redis();
 
 app.get("/leader-board", async (req, res) => {
@@ -42,12 +43,13 @@ app.get("/game", async (req, res) => {
     // intitate the game for the new user
     if (!isMember && userName) {
       // createUser = await redis.lpush("users", userName);
+      const randomCards = generateRandomCards();
       await redis.hmset(
         userName,
         "score",
         0,
-        "gamecards",
-        "",
+        "gameCards",
+        JSON.stringify(randomCards),
         "hasDefuseCard",
         "false",
         "activeCard",
@@ -59,7 +61,7 @@ app.get("/game", async (req, res) => {
     let game = await redis.hgetall(userName);
     res.status(200).send({
       ...game,
-      gamecards: JSON.parse(game.gamecards || "[]"),
+      gameCards: JSON.parse(game.gameCards || "[]"),
     });
   } catch (e) {
     console.log(e);
@@ -69,16 +71,14 @@ app.get("/game", async (req, res) => {
 
 app.put("/game", async (req, res) => {
   try {
-    const {
-      userName,
-      gameCards,
-      score = 0,
-      hasDefuseCard,
-      activeCard,
-    } = req.body;
+    const { userName, hasDefuseCard, activeCard } = req.body;
+    const score = req.body.score || 0;
+    const gameCards = req.body.gameCards
+      ? req.body.gameCards
+      : generateRandomCards();
     insertGame = await redis.hmset(
       userName,
-      "gamecards",
+      "gameCards",
       JSON.stringify(gameCards),
       "hasDefuseCard",
       hasDefuseCard,
@@ -89,7 +89,7 @@ app.put("/game", async (req, res) => {
     );
     // update the score of the user
     redis.zadd("leaderboard", score, userName);
-    res.status(200).send("saved");
+    res.status(200).send({ ...req.body, gameCards, score });
   } catch (e) {
     console.log(e);
     throw ("Failed to fecth data", e);
@@ -102,7 +102,7 @@ app.delete("/game", async (req, res) => {
     const emptyArray = [];
     insertGame = await redis.hmset(
       userName,
-      "gamecards",
+      "gameCards",
       emptyArray,
       "hasDefuseCard",
       "false",

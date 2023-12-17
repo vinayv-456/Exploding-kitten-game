@@ -1,4 +1,4 @@
-import { CHARATERS } from "../store/constants";
+const { CHARATERS } = require("../../constants");
 
 export const generateRandomCards = () => {
   const randomDeck = [];
