@@ -12,15 +12,20 @@ const redis = new Redis();
 
 app.get("/leader-board", async (req, res) => {
   try {
-    let users = await redis.lrange("users", 0, -1);
-    const usersScores = {};
-    for (let i = 0; i < users.length; i++) {
-      let user = users[i];
-      userScore = await redis.hget(user, "score");
-      usersScores[user] = userScore;
+    const leaderboard = await redis.zrevrange(
+      "leaderboard",
+      0,
+      -1,
+      "WITHSCORES"
+    );
+    const formatedLeaderboard = [];
+    // formating into the required format
+    for (let i = 0; i < leaderboard.length; i += 2) {
+      const userName = leaderboard[i];
+      const userScore = parseInt(leaderboard[i + 1]);
+      formatedLeaderboard.push({ userName, userScore });
     }
-
-    res.status(200).send(usersScores);
+    res.status(200).send(formatedLeaderboard);
   } catch (e) {
     console.log(e);
     throw ("Failed to fecth data", e);
@@ -32,47 +37,30 @@ app.get("/game", async (req, res) => {
     const { userName } = req.query;
 
     // check if the memeber already exists
-    let isMember = await redis.exists(user_name);
+    let isMember = await redis.exists(userName);
 
     // intitate the game for the new user
-    if (!isMember) {
-      createUser = await redis.lpush("users", userName);
+    if (!isMember && userName) {
+      // createUser = await redis.lpush("users", userName);
       await redis.hmset(
         userName,
         "score",
         0,
         "gamecards",
-        [],
+        "",
         "hasDefuseCard",
         "false",
         "activeCard",
         null
       );
+      redis.zadd("leaderboard", 0, userName);
     }
 
     let game = await redis.hgetall(userName);
-    res.status(200).send(game);
-  } catch (e) {
-    console.log(e);
-    throw ("Failed to fecth data", e);
-  }
-});
-
-app.post("/game", async (req, res) => {
-  try {
-    const { gameCards, hasDefuseCard, activeCard, userName, score } = req.body;
-    insertGame = await redis.hmset(
-      userName,
-      "gamecards",
-      gameCards,
-      "hasDefuseCard",
-      hasDefuseCard,
-      "activeCard",
-      activeCard,
-      "score",
-      score
-    );
-    res.status(200).send("inserted");
+    res.status(200).send({
+      ...game,
+      gamecards: JSON.parse(game.gamecards || "[]"),
+    });
   } catch (e) {
     console.log(e);
     throw ("Failed to fecth data", e);
@@ -81,18 +69,26 @@ app.post("/game", async (req, res) => {
 
 app.put("/game", async (req, res) => {
   try {
-    const { userName, gameCards, score, hasDefusedCard, activeCard } = req.body;
+    const {
+      userName,
+      gameCards,
+      score = 0,
+      hasDefuseCard,
+      activeCard,
+    } = req.body;
     insertGame = await redis.hmset(
       userName,
       "gamecards",
-      gameCards,
+      JSON.stringify(gameCards),
       "hasDefuseCard",
-      hasDefusedCard,
+      hasDefuseCard,
       "activeCard",
       activeCard,
       "score",
       score
     );
+    // update the score of the user
+    redis.zadd("leaderboard", score, userName);
     res.status(200).send("saved");
   } catch (e) {
     console.log(e);
@@ -113,6 +109,8 @@ app.delete("/game", async (req, res) => {
       "activeCard",
       null
     );
+    const score = redis.hget(userName, "score");
+    redis.zadd("leaderboard", score, userName);
     res.status(200).send("reset succesfull");
   } catch (e) {
     console.log(e);
