@@ -8,7 +8,8 @@ import {
   PUT_GAME_STATE_PENDING,
   PUT_GAME_STATE_SUCCESS,
   SET_USERNAME_SUCCESS,
-} from "../constants";
+  PUT_GAME_STATE_FAILED,
+} from "../../utilis/constants";
 
 const INTIAL_STATE = {
   gameCards: null,
@@ -16,6 +17,7 @@ const INTIAL_STATE = {
   score: 0,
   hasDefuseCard: false,
   activeCard: "",
+  error: "",
 };
 
 export const gameStateReducer = (state = INTIAL_STATE, action = {}) => {
@@ -61,6 +63,11 @@ export const gameStateReducer = (state = INTIAL_STATE, action = {}) => {
         score: score,
       };
     }
+    case PUT_GAME_STATE_FAILED:
+      return {
+        ...state,
+        error: action.payload.error,
+      };
     default:
       return state;
   }

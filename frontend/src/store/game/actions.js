@@ -1,4 +1,3 @@
-import axiosInstance from "../../apis/client";
 import {
   // requestGameState - get
   REQUEST_GAME_STATE_PENDING,
@@ -10,7 +9,8 @@ import {
   PUT_GAME_STATE_FAILED,
   //   setUserName
   SET_USERNAME_SUCCESS,
-} from "../constants";
+} from "../../utilis/constants";
+import axiosInstance from "../../apis/client";
 
 const requestGameState = (params) => async (dispatch) => {
   console.log("paramss", params);
@@ -27,11 +27,17 @@ const requestGameState = (params) => async (dispatch) => {
 const putGameState = (params) => async (dispatch) => {
   dispatch({ type: PUT_GAME_STATE_PENDING });
   try {
-    await axiosInstance.put("/game", { ...params });
-    dispatch({ type: PUT_GAME_STATE_SUCCESS, payload: params });
+    const res = await axiosInstance.put("/game", { ...params });
+    console.log("res", res, res.data);
+    dispatch({ type: PUT_GAME_STATE_SUCCESS, payload: res.data });
   } catch (e) {
     console.log(e);
-    dispatch({ type: PUT_GAME_STATE_FAILED });
+    dispatch({
+      type: PUT_GAME_STATE_FAILED,
+      payload: {
+        error: e,
+      },
+    });
   }
 };
 

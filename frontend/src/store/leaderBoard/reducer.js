@@ -1,7 +1,7 @@
 import {
   REQUEST_LEADERBOARD_PENDING,
   REQUEST_LEADERBOARD_SUCCESS,
-} from "../constants";
+} from "../../utilis/constants";
 
 const INTIAL_STATE = {
   userScores: [],
