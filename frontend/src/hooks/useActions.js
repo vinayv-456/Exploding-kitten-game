@@ -2,16 +2,16 @@ import { useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
 import {
   getLeaderBoard,
+  updateLeaderboard,
   requestGameState,
-  setGameState,
   putGameState,
   setUserName,
 } from "../store/actions";
 
 const actions = {
   getLeaderBoard,
+  updateLeaderboard,
   requestGameState,
-  setGameState,
   putGameState,
   setUserName,
 };

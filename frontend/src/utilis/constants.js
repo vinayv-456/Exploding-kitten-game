@@ -10,10 +10,3 @@ export const PUT_GAME_STATE_FAILED = "PUT_GAME_STATE_FAILED";
 export const REQUEST_LEADERBOARD_PENDING = "REQUEST_LEADERBOARD_PENDING";
 export const REQUEST_LEADERBOARD_SUCCESS = "REQUEST_LEADERBOARD_SUCCESS";
 export const SET_USERNAME_SUCCESS = "SET_USERNAME_SUCCESS";
-
-export const CHARATERS = [
-  "Cat card 😼",
-  "Defuse card 🙅‍♂️",
-  "Shuffle card 🔀",
-  "Exploding kitten card 💣",
-];

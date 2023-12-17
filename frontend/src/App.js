@@ -1,28 +1,21 @@
 import "./App.css";
 import { useSelector } from "react-redux";
+import io from "socket.io-client";
 
 import { useEffect } from "react";
 import Leaderboard from "./components/leaderboard/Leaderboard";
-import Cards from "./components/game/Game";
 import { useActions } from "./hooks/useActions";
-import { generateRandomCards } from "./utilis/utilis";
 import Game from "./components/game/Game";
+import { baseURL } from "./apis/endpoints";
 
 function App() {
   const userName = useSelector((state) => state.gameState?.userName);
   const cards = useSelector((state) => state.gameState?.gameCards);
-  const isPending = useSelector((state) => state.gameState?.isPending);
-  const score = useSelector((state) => state.gameState?.score);
-  const hasDefusedCard = useSelector(
-    (state) => state.gameState?.hasDefusedCard
-  );
-  const activeCard = useSelector((state) => state.gameState?.activeCard);
-  const users = useSelector((state) => state.leaderBoard?.userScores);
-  const { requestGameState, setGameState, getLeaderBoard, setUserName } =
-    useActions();
+  const { requestGameState, updateLeaderboard, setUserName } = useActions();
+  const socket = io(baseURL, { transports: ["websocket"] });
 
   useEffect(() => {
-    // prompt to enter unser_name
+    // prompt to enter userName
     const enterName = () => {
       if (!userName) {
         let name = prompt("enter your name!");
@@ -32,28 +25,17 @@ function App() {
     };
     // fetch the game state of the user
     requestGameState({ userName: enterName() });
-    console.log("fetching leaderboard");
-    getLeaderBoard();
-  }, []);
 
-  useEffect(() => {
-    const deckOfCards = () => {
-      if (!cards || cards?.length === 0) {
-        const obj = {
-          gameCards: generateRandomCards(),
-          hasDefuseCard: false,
-          activeCard: null,
-          userName: userName,
-          score: score,
-        };
-        console.log("setting game object");
-        setGameState(obj);
-      }
+    // Listen for leaderboard updates
+    socket.on("leaderboardUpdate", (leaderboard) => {
+      console.log("Leaderboard updated:", leaderboard);
+      updateLeaderboard(leaderboard);
+    });
+
+    return () => {
+      socket.disconnect();
     };
-    if (!isPending) {
-      deckOfCards();
-    }
-  }, [isPending]);
+  }, []);
 
   console.log("cards", cards);
 

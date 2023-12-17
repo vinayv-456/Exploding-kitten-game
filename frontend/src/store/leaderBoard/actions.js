@@ -1,9 +1,8 @@
 import axiosInstance from "../../apis/client";
 import {
-  //   getLeaderBoard
-  REQUEST_LEADERBOARD_SUCCESS,
   REQUEST_LEADERBOARD_PENDING,
-} from "../constants";
+  REQUEST_LEADERBOARD_SUCCESS,
+} from "../../utilis/constants";
 
 const getLeaderBoard = () => async (dispatch) => {
   dispatch({ type: REQUEST_LEADERBOARD_PENDING });
@@ -15,4 +14,10 @@ const getLeaderBoard = () => async (dispatch) => {
   }
 };
 
-export { getLeaderBoard };
+const updateLeaderboard = (result) => async (dispatch) => {
+  try {
+    dispatch({ type: REQUEST_LEADERBOARD_SUCCESS, payload: { data: result } });
+  } catch (e) {}
+};
+
+export { getLeaderBoard, updateLeaderboard };

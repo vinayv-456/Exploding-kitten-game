@@ -6,39 +6,36 @@ const Game = (props) => {
   const cards = useSelector((state) => state.gameState?.gameCards);
   const isPending = useSelector((state) => state.gameState?.isPending);
   const score = useSelector((state) => state.gameState?.score);
-  const hasDefusedCard = useSelector(
-    (state) => state.gameState?.hasDefusedCard
-  );
+  const hasDefuseCard = useSelector((state) => state.gameState?.hasDefuseCard);
   const activeCard = useSelector((state) => state.gameState?.activeCard);
   const { putGameState } = useActions();
   let left = 0;
   let top = 0;
 
-  const check = () => {
+  const checkCard = () => {
     const obj = {
       userName: userName,
       activeCard: activeCard,
-      hasDefusedCard: hasDefusedCard,
+      hasDefuseCard: hasDefuseCard,
       isPending: isPending,
       gameCards: cards,
       score: score,
     };
     let openedCard = cards.pop();
-    console.log("openedCa", openedCard);
     let isCompleted = true;
     obj.activeCard = openedCard;
     // obj.gameCards = cards;
 
     // handle each card based on the character
-    if (openedCard === "Defuse card 🙅‍♂️") obj.hasDefusedCard = true;
+    if (openedCard === "Defuse card 🙅‍♂️") obj.hasDefuseCard = true;
     else if (openedCard === "Shuffle card 🔀") {
       obj.gameCards = null;
-      obj.hasDefusedCard = false;
+      obj.hasDefuseCard = false;
       isCompleted = false;
     } else if (openedCard === "Exploding kitten card 💣") {
       isCompleted = false;
       // doesn't have defused card
-      if (!obj.hasDefusedCard) {
+      if (!obj.hasDefuseCard) {
         confirmation();
 
         function confirmation() {
@@ -52,7 +49,7 @@ const Game = (props) => {
         }
       } else {
         // had defused card, so can use it for explode card
-        obj.hasDefusedCard = false;
+        obj.hasDefuseCard = false;
       }
     }
 
@@ -73,47 +70,57 @@ const Game = (props) => {
         }
       }
     }
+    // update the score on database
     putGameState(obj);
   };
-
   return (
     <div style={{ flex: 2 }}>
       <h1 style={{ textAlign: "center" }}>😸 Exploding Kitten</h1>
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <div>
-          <h3>Tap on the deck to reveal the card</h3>
-          <div style={{ position: "relative", top: "30px" }} onClick={check}>
-            {cards?.length !== 0 &&
-              cards?.map((card) => {
-                left = left + 10;
-                top = top + 10;
-                return (
-                  <div>
-                    <div
-                      style={{
-                        height: "100px",
-                        width: "100px",
-                        position: "absolute",
-                        left: `${left}px`,
-                        top: `${top}px`,
-                        backgroundColor: "black",
-                      }}
-                    >
-                      {card}
-                    </div>
-                  </div>
-                );
-              })}
+      {cards?.length > 0 ? (
+        <>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div>
+              <h3>Tap on the deck to reveal the card</h3>
+              <div
+                style={{ position: "relative", top: "30px" }}
+                onClick={checkCard}
+              >
+                {cards?.length !== 0 &&
+                  cards?.map((card) => {
+                    left = left + 10;
+                    top = top + 10;
+                    return (
+                      <div>
+                        <div
+                          style={{
+                            height: "100px",
+                            width: "100px",
+                            position: "absolute",
+                            left: `${left}px`,
+                            top: `${top}px`,
+                            backgroundColor: "black",
+                          }}
+                        >
+                          {card}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      {activeCard ? (
-        <h1 style={{ marginTop: "300px", textAlign: "center" }}>
-          Active Card: {activeCard}
-        </h1>
+          {activeCard ? (
+            <h1 style={{ marginTop: "300px", textAlign: "center" }}>
+              Active Card: {activeCard}
+            </h1>
+          ) : (
+            <h1 style={{ marginTop: "300px", textAlign: "center" }}>---</h1>
+          )}
+        </>
       ) : (
-        <h1 style={{ marginTop: "300px", textAlign: "center" }}>---</h1>
+        <span>loading new game...</span>
       )}
+
       {score ? (
         <h1 style={{ marginTop: "100px", textAlign: "center" }}>
           score: {score}
