@@ -8,7 +8,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 const Redis = require("ioredis");
-const { generateRandomCards } = require("../constants");
+const { generateRandomCards } = require("./utils");
 const redis = new Redis();
 
 app.get("/leader-board", async (req, res) => {
