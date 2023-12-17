@@ -1,4 +1,10 @@
-import { getLeaderBoard } from "./leaderBoard/actions";
+import { getLeaderBoard, updateLeaderboard } from "./leaderBoard/actions";
 import { requestGameState, putGameState, setUserName } from "./game/actions";
 
-export { getLeaderBoard, requestGameState, putGameState, setUserName };
+export {
+  getLeaderBoard,
+  updateLeaderboard,
+  requestGameState,
+  putGameState,
+  setUserName,
+};

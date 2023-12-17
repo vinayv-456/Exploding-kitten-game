@@ -2,6 +2,7 @@ import { useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
 import {
   getLeaderBoard,
+  updateLeaderboard,
   requestGameState,
   putGameState,
   setUserName,
@@ -9,6 +10,7 @@ import {
 
 const actions = {
   getLeaderBoard,
+  updateLeaderboard,
   requestGameState,
   putGameState,
   setUserName,

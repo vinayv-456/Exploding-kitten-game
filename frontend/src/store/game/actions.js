@@ -11,12 +11,13 @@ import {
   SET_USERNAME_SUCCESS,
 } from "../../utilis/constants";
 import axiosInstance from "../../apis/client";
+import { endpoints } from "../../apis/endpoints";
 
 const requestGameState = (params) => async (dispatch) => {
   console.log("paramss", params);
   dispatch({ type: REQUEST_GAME_STATE_PENDING });
   try {
-    const result = await axiosInstance.get("/game", { params });
+    const result = await axiosInstance.get(endpoints.game, { params });
     dispatch({ type: REQUEST_GAME_STATE_SUCCESS, payload: result });
   } catch (e) {
     console.log("error =>", e);
@@ -27,7 +28,7 @@ const requestGameState = (params) => async (dispatch) => {
 const putGameState = (params) => async (dispatch) => {
   dispatch({ type: PUT_GAME_STATE_PENDING });
   try {
-    const res = await axiosInstance.put("/game", { ...params });
+    const res = await axiosInstance.put(endpoints.game, { ...params });
     console.log("res", res, res.data);
     dispatch({ type: PUT_GAME_STATE_SUCCESS, payload: res.data });
   } catch (e) {

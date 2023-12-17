@@ -14,4 +14,10 @@ const getLeaderBoard = () => async (dispatch) => {
   }
 };
 
-export { getLeaderBoard };
+const updateLeaderboard = (result) => async (dispatch) => {
+  try {
+    dispatch({ type: REQUEST_LEADERBOARD_SUCCESS, payload: { data: result } });
+  } catch (e) {}
+};
+
+export { getLeaderBoard, updateLeaderboard };

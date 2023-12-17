@@ -1,5 +1,7 @@
 const { response } = require("express");
 const express = require("express");
+const http = require("http");
+const socketIO = require("socket.io");
 var cors = require("cors");
 const bodyParser = require("body-parser");
 
@@ -11,27 +13,41 @@ const Redis = require("ioredis");
 const { generateRandomCards } = require("./utils");
 const redis = new Redis();
 
-app.get("/leader-board", async (req, res) => {
-  try {
-    const leaderboard = await redis.zrevrange(
-      "leaderboard",
-      0,
-      -1,
-      "WITHSCORES"
-    );
-    const formatedLeaderboard = [];
-    // formating into the required format
-    for (let i = 0; i < leaderboard.length; i += 2) {
-      const userName = leaderboard[i];
-      const userScore = parseInt(leaderboard[i + 1]);
-      formatedLeaderboard.push({ userName, userScore });
-    }
-    res.status(200).send(formatedLeaderboard);
-  } catch (e) {
-    console.log(e);
-    throw ("Failed to fecth data", e);
+const server = http.createServer(app);
+const io = socketIO(server);
+
+const getLatestLeaderboard = async () => {
+  const leaderboard = await redis.zrevrange("leaderboard", 0, -1, "WITHSCORES");
+  const formatedLeaderboard = [];
+  // formating into the required format
+  for (let i = 0; i < leaderboard.length; i += 2) {
+    const userName = leaderboard[i];
+    const userScore = parseInt(leaderboard[i + 1]);
+    formatedLeaderboard.push({ userName, userScore });
   }
+  return formatedLeaderboard;
+};
+
+// WebSocket connection handling
+io.on("connection", (socket) => {
+  console.log("WebSocket connected");
+
+  // Handle disconnect
+  socket.on("disconnect", () => {
+    console.log("WebSocket disconnected");
+  });
 });
+
+// old: REST leader-board implementation
+// app.get("/leader-board", async (req, res) => {
+//   try {
+//     const leaderboardLatest = await getLatestLeaderboard();
+//     res.status(200).send(leaderboardLatest);
+//   } catch (e) {
+//     console.log(e);
+//     throw ("Failed to fecth data", e);
+//   }
+// });
 
 app.get("/game", async (req, res) => {
   try {
@@ -89,6 +105,11 @@ app.put("/game", async (req, res) => {
     );
     // update the score of the user
     redis.zadd("leaderboard", score, userName);
+
+    // emit the latest leaderboard
+    const leaderboardLatest = await getLatestLeaderboard();
+    io.emit("leaderboardUpdate", leaderboardLatest);
+
     res.status(200).send({ ...req.body, gameCards, score });
   } catch (e) {
     console.log(e);
@@ -111,6 +132,11 @@ app.delete("/game", async (req, res) => {
     );
     const score = redis.hget(userName, "score");
     redis.zadd("leaderboard", score, userName);
+
+    // emit the latest leaderboard
+    const leaderboardLatest = await getLatestLeaderboard();
+    io.emit("leaderboardUpdate", leaderboardLatest);
+
     res.status(200).send("reset succesfull");
   } catch (e) {
     console.log(e);
@@ -118,6 +144,6 @@ app.delete("/game", async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
+server.listen(3000, () => {
   console.log("app is running on port 3000");
 });
