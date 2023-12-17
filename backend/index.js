@@ -12,11 +12,11 @@ const redis = new Redis();
 
 app.get("/leader-board", async (req, res) => {
   try {
-    let users = await redis.send_command("lrange", "users", 0, -1);
+    let users = await redis.lrange("users", 0, -1);
     const usersScores = {};
     for (let i = 0; i < users.length; i++) {
       let user = users[i];
-      userScore = await redis.send_command("hget", [`${user}`, "score"]);
+      userScore = await redis.hget(user, "score");
       usersScores[user] = userScore;
     }
 
@@ -30,33 +30,27 @@ app.get("/leader-board", async (req, res) => {
 app.get("/game", async (req, res) => {
   try {
     const { user_name } = req.query;
-    let isMember = false;
-    let users = await redis.send_command("lrange", "users", 0, -1);
 
-    for (let i = 0; i < users.length; i++) {
-      if (user_name === users[i]) {
-        isMember = true;
-        break;
-      }
-    }
+    // check if the memeber already exists
+    let isMember = await redis.exists(user_name);
 
+    // intitate the game for the new user
     if (!isMember) {
-      const emptyArray = [];
-      createUser = await redis.send_command("lpush", ["users", `${user_name}`]);
-      insertGame = await redis.send_command("hmset", [
-        `${user_name}`,
+      createUser = await redis.lpush("users", user_name);
+      await redis.hmset(
+        user_name,
         "score",
         0,
         "gamecards",
-        `${emptyArray}`,
+        [],
         "hasDefuseCard",
         "false",
         "activeCard",
-        null,
-      ]);
+        null
+      );
     }
 
-    let game = await redis.send_command("hgetall", `${user_name}`);
+    let game = await redis.hgetall(user_name);
     res.status(200).send(game);
   } catch (e) {
     console.log(e);
@@ -67,17 +61,17 @@ app.get("/game", async (req, res) => {
 app.post("/game", async (req, res) => {
   try {
     const { gameCards, hasDefuseCard, activeCard, user_name, score } = req.body;
-    insertGame = await redis.send_command("hmset", [
-      `${user_name}`,
+    insertGame = await redis.hmset(
+      user_name,
       "gamecards",
-      `${gameCards}`,
+      gameCards,
       "hasDefuseCard",
-      `${hasDefuseCard}`,
+      hasDefuseCard,
       "activeCard",
-      `${activeCard}`,
+      activeCard,
       "score",
-      `${score}`,
-    ]);
+      score
+    );
     res.status(200).send("inserted");
   } catch (e) {
     console.log(e);
@@ -89,17 +83,17 @@ app.put("/game", async (req, res) => {
   try {
     const { user_name, gameCards, score, hasDefusedCard, activeCard } =
       req.body;
-    insertGame = await redis.send_command("hmset", [
-      `${user_name}`,
+    insertGame = await redis.hmset(
+      user_name,
       "gamecards",
-      `${gameCards}`,
+      gameCards,
       "hasDefuseCard",
       hasDefusedCard,
       "activeCard",
-      `${activeCard}`,
+      activeCard,
       "score",
-      `${score}`,
-    ]);
+      score
+    );
     res.status(200).send("saved");
   } catch (e) {
     console.log(e);
@@ -111,15 +105,15 @@ app.delete("/game", async (req, res) => {
   try {
     const { user_name } = req.body;
     const emptyArray = [];
-    insertGame = await redis.send_command("hmset", [
-      `${user_name}`,
+    insertGame = await redis.hmset(
+      user_name,
       "gamecards",
-      `${emptyArray}`,
+      emptyArray,
       "hasDefuseCard",
       "false",
       "activeCard",
-      null,
-    ]);
+      null
+    );
     res.status(200).send("reset succesfull");
   } catch (e) {
     console.log(e);
