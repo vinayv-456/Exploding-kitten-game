@@ -3,7 +3,6 @@ import { bindActionCreators } from "redux";
 import {
   getLeaderBoard,
   requestGameState,
-  setGameState,
   putGameState,
   setUserName,
 } from "../store/actions";
@@ -11,7 +10,6 @@ import {
 const actions = {
   getLeaderBoard,
   requestGameState,
-  setGameState,
   putGameState,
   setUserName,
 };

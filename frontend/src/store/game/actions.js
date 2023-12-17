@@ -4,10 +4,6 @@ import {
   REQUEST_GAME_STATE_PENDING,
   REQUEST_GAME_STATE_SUCCESS,
   REQUEST_GAME_STATE_FAILED,
-  //   setGameState - set
-  SET_GAME_STATE_PENDING,
-  SET_GAME_STATE_SUCCESS,
-  SET_GAME_STATE_FAILED,
   //   putGameState - put
   PUT_GAME_STATE_PENDING,
   PUT_GAME_STATE_SUCCESS,
@@ -25,17 +21,6 @@ const requestGameState = (params) => async (dispatch) => {
   } catch (e) {
     console.log("error =>", e);
     dispatch({ type: REQUEST_GAME_STATE_FAILED });
-  }
-};
-
-const setGameState = (params) => async (dispatch) => {
-  dispatch({ type: SET_GAME_STATE_PENDING });
-  try {
-    await axiosInstance.post("/game", { ...params });
-    dispatch({ type: SET_GAME_STATE_SUCCESS, payload: params });
-  } catch (e) {
-    console.log(e);
-    dispatch({ type: SET_GAME_STATE_FAILED });
   }
 };
 
@@ -58,4 +43,4 @@ const setUserName = (params) => async (dispatch) => {
   }
 };
 
-export { requestGameState, setGameState, putGameState, setUserName };
+export { requestGameState, putGameState, setUserName };

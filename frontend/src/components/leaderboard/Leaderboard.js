@@ -3,14 +3,14 @@ import { useSelector } from "react-redux";
 
 function Leaderboard() {
   const users = useSelector((state) => state.leaderBoard?.userScores);
-  const userName = useSelector((state) => state.gameState?.userName);
-  const score = useSelector((state) => state.gameState?.score);
+  const myUserName = useSelector((state) => state.gameState?.userName);
 
   return (
     <div style={{ flex: 1 }}>
       <h1 style={{ textAlign: "center" }}>Leaderboard</h1>
       {users &&
-        Object.keys(users).map((user) => {
+        users.map((user, index) => {
+          const { userName, userScore } = user;
           return (
             <div
               style={{
@@ -18,14 +18,13 @@ function Leaderboard() {
                 margin: "10px",
                 padding: "3px",
                 display: "flex",
+                fontWeight: myUserName === userName ? "bold" : "",
+                fontSize: myUserName === userName ? 18 : 14,
               }}
             >
-              <div className="equi">{user}: </div>
-              {user === userName ? (
-                <div className="equi">{score} </div>
-              ) : (
-                <div className="equi">{users[user]} </div>
-              )}
+              <div className="equi">{`#${index + 1}`} </div>
+              <div className="equi">{userName} </div>
+              <div className="equi">{userScore} </div>
             </div>
           );
         })}

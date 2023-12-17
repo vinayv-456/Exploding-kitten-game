@@ -13,16 +13,14 @@ function App() {
   const cards = useSelector((state) => state.gameState?.gameCards);
   const isPending = useSelector((state) => state.gameState?.isPending);
   const score = useSelector((state) => state.gameState?.score);
-  const hasDefusedCard = useSelector(
-    (state) => state.gameState?.hasDefusedCard
-  );
+  const hasDefuseCard = useSelector((state) => state.gameState?.hasDefuseCard);
   const activeCard = useSelector((state) => state.gameState?.activeCard);
   const users = useSelector((state) => state.leaderBoard?.userScores);
-  const { requestGameState, setGameState, getLeaderBoard, setUserName } =
+  const { requestGameState, putGameState, getLeaderBoard, setUserName } =
     useActions();
 
   useEffect(() => {
-    // prompt to enter unser_name
+    // prompt to enter userName
     const enterName = () => {
       if (!userName) {
         let name = prompt("enter your name!");
@@ -37,7 +35,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const deckOfCards = () => {
+    const intiateNewGame = () => {
       if (!cards || cards?.length === 0) {
         const obj = {
           gameCards: generateRandomCards(),
@@ -47,11 +45,12 @@ function App() {
           score: score,
         };
         console.log("setting game object");
-        setGameState(obj);
+        putGameState(obj);
       }
     };
+
     if (!isPending) {
-      deckOfCards();
+      intiateNewGame();
     }
   }, [isPending]);
 
