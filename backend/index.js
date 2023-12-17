@@ -75,6 +75,11 @@ app.get("/game", async (req, res) => {
     }
 
     let game = await redis.hgetall(userName);
+
+    // emit the latest leaderboard
+    const leaderboardLatest = await getLatestLeaderboard();
+    io.emit("leaderboardUpdate", leaderboardLatest);
+
     res.status(200).send({
       ...game,
       gameCards: JSON.parse(game.gameCards || "[]"),
