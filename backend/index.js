@@ -29,12 +29,12 @@ app.get("/leader-board", async (req, res) => {
 
 app.get("/game", async (req, res) => {
   try {
-    const { user_name } = req.query;
+    const { userName } = req.query;
     let isMember = false;
     let users = await redis.send_command("lrange", "users", 0, -1);
 
     for (let i = 0; i < users.length; i++) {
-      if (user_name === users[i]) {
+      if (userName === users[i]) {
         isMember = true;
         break;
       }
@@ -42,9 +42,9 @@ app.get("/game", async (req, res) => {
 
     if (!isMember) {
       const emptyArray = [];
-      createUser = await redis.send_command("lpush", ["users", `${user_name}`]);
+      createUser = await redis.send_command("lpush", ["users", `${userName}`]);
       insertGame = await redis.send_command("hmset", [
-        `${user_name}`,
+        `${userName}`,
         "score",
         0,
         "gamecards",
@@ -56,7 +56,7 @@ app.get("/game", async (req, res) => {
       ]);
     }
 
-    let game = await redis.send_command("hgetall", `${user_name}`);
+    let game = await redis.send_command("hgetall", `${userName}`);
     res.status(200).send(game);
   } catch (e) {
     console.log(e);
@@ -66,9 +66,9 @@ app.get("/game", async (req, res) => {
 
 app.post("/game", async (req, res) => {
   try {
-    const { gameCards, hasDefuseCard, activeCard, user_name, score } = req.body;
+    const { gameCards, hasDefuseCard, activeCard, userName, score } = req.body;
     insertGame = await redis.send_command("hmset", [
-      `${user_name}`,
+      `${userName}`,
       "gamecards",
       `${gameCards}`,
       "hasDefuseCard",
@@ -87,10 +87,9 @@ app.post("/game", async (req, res) => {
 
 app.put("/game", async (req, res) => {
   try {
-    const { user_name, gameCards, score, hasDefusedCard, activeCard } =
-      req.body;
+    const { userName, gameCards, score, hasDefusedCard, activeCard } = req.body;
     insertGame = await redis.send_command("hmset", [
-      `${user_name}`,
+      `${userName}`,
       "gamecards",
       `${gameCards}`,
       "hasDefuseCard",
@@ -109,10 +108,10 @@ app.put("/game", async (req, res) => {
 
 app.delete("/game", async (req, res) => {
   try {
-    const { user_name } = req.body;
+    const { userName } = req.body;
     const emptyArray = [];
     insertGame = await redis.send_command("hmset", [
-      `${user_name}`,
+      `${userName}`,
       "gamecards",
       `${emptyArray}`,
       "hasDefuseCard",

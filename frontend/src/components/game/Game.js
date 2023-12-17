@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import { useActions } from "../../hooks/useActions";
 
 const Game = (props) => {
-  const user_name = useSelector((state) => state.gameState?.user_name);
+  const userName = useSelector((state) => state.gameState?.userName);
   const cards = useSelector((state) => state.gameState?.gameCards);
   const isPending = useSelector((state) => state.gameState?.isPending);
   const score = useSelector((state) => state.gameState?.score);
@@ -16,7 +16,7 @@ const Game = (props) => {
 
   const check = () => {
     const obj = {
-      user_name: user_name,
+      userName: userName,
       activeCard: activeCard,
       hasDefusedCard: hasDefusedCard,
       isPending: isPending,

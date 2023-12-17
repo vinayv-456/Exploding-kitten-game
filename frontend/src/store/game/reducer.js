@@ -21,7 +21,7 @@ const INTIAL_STATE = {
 export const gameStateReducer = (state = INTIAL_STATE, action = {}) => {
   switch (action.type) {
     case SET_USERNAME_SUCCESS:
-      return { ...state, user_name: action.payload };
+      return { ...state, userName: action.payload };
     case REQUEST_GAME_STATE_PENDING:
       return { ...state, isPending: true };
     case REQUEST_GAME_STATE_SUCCESS:
